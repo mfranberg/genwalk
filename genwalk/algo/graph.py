@@ -18,7 +18,7 @@ def find_paths(pairs, variant_gene, G):
         gene2 = variant_gene.get( var2, None )
 
         if not gene1 or not gene2:
-            yield( pair, [] )
+            yield( (var1, var2), [] )
             continue
 
         for g1, g2 in itertools.product( gene1, gene2 ):

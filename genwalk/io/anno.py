@@ -21,6 +21,8 @@ def get_gene_names(variants, window=100000):
     variant_gene = defaultdict( list )
     anno_variants = set( )
     for row in cursor:
+        if not row[ 1 ]:
+            continue
         variant_gene[ row[ 0 ] ].append( row[ 1 ].replace( "-AS1", "" ) )
         anno_variants.add( row[ 0 ] )
 

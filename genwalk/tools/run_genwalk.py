@@ -29,9 +29,10 @@ def flatten(pairs):
 @click.option( '--variant-gene-file', type=click.File( "r" ), help = "A file mapping variants to genes", required = False )
 @click.option( '--pair-file', type=click.File( "r" ), help = "A file mapping variants to genes", required = True )
 @click.option( '--log-file', type=click.Path( writable=True ), help = "The log file.", required = False )
+@click.option( '--window', type=int, help = "The window size too look for surrounding genes of a variant, default=100000.", default=100000, required = False )
 @click.option( '--out', help='Resulting genes', type=click.File( 'w' ), default = sys.stdout, required = True )
 @click.option( '--plot', help="Graph showing all paths", type=click.Path( writable = True ), required = False )
-def main(graph_file, variant_gene_file, pair_file, log_file, out, plot):
+def main(graph_file, variant_gene_file, pair_file, log_file, window, out, plot):
     G = util.parse_graph( graph_file )
     pairs = util.parse_pairs( pair_file )
 
@@ -44,7 +45,7 @@ def main(graph_file, variant_gene_file, pair_file, log_file, out, plot):
     if variant_gene_file:
         variant_gene = util.parse_variant_gene( variant_gene_file )
     else:
-        variant_gene = anno.get_gene_names( flatten( pairs ) )
+        variant_gene = anno.get_gene_names( flatten( pairs ), window = window )
 
     out.write( "snp1 snp2\tgenepath\texperiment_types\n" )
     for pair, path in graph.find_paths( pairs, variant_gene, G ):
@@ -54,6 +55,8 @@ def main(graph_file, variant_gene_file, pair_file, log_file, out, plot):
         logging.info( "Constructing graph" )
         PG = pgv.AGraph( directed = True )
         for pair, path in graph.find_paths( pairs, variant_gene, G ):
+            if len( path ) <= 1:
+                continue
             for i in range( len( path ) - 1 ):
                 PG.add_edge( path[ i ], path[ i + 1 ] )
 
